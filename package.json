@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "docx": "^9.5.0",
+    "express": "^5.1.0",
+    "numero-por-extenso": "^1.0.8"
+  }
+}
