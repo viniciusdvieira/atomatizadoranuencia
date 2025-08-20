@@ -48,6 +48,7 @@
   <div class="tabs">
     <button type="button" class="active" onclick="switchTab(0)">Termo de Anuência</button>
     <button type="button" onclick="switchTab(1)">Termo Aditivo de Rescisão</button>
+    <button type="button" onclick="switchTab(2)">Portaria PAI</button>
   </div>
 
   <!-- Termo de Anuência -->
@@ -92,6 +93,50 @@
     </div>
   </div>
 
+  <!-- Portaria PAI -->
+  <div class="tab-content">
+    <h2>Gerar Portaria PAI</h2>
+    <form id="portariaPAIForm">
+      <label>Nº da Resolução SEI:</label>
+      <input name="numeroRes" required>
+
+      <label>Data da Resolução:</label>
+      <input name="dataRes" type="date" required>
+
+      <label>Cargo do Empregado:</label>
+      <input name="cargoFunc" required>
+
+      <label>Nome do Empregado:</label>
+      <input name="nomeFunc" required>
+
+      <label>Matrícula do Empregado:</label>
+      <input name="matriculaFunc" required>
+
+      <label>Nº do Processo SEI (adesão):</label>
+      <input name="numSei" required>
+
+      <label>Lotação (ELO):</label>
+      <input name="lotacao" required>
+
+      <label>Data de Vigência da Portaria:</label>
+      <input name="dataVigorRes" type="date" required>
+
+      <button type="submit">Gerar Texto</button>
+    </form>
+
+    <!-- Saída do texto gerado -->
+    <div id="portariaOutputBox" class="output-box" style="display:none; margin-top:16px;">
+      <div class="output-actions" style="display:flex; gap:10px; justify-content:flex-end; margin-bottom:6px;">
+        <button type="button" onclick="copiarPortaria()">Copiar texto</button>
+      </div>
+      <textarea id="portariaOutput" class="preview" readonly
+        style="width:100%; min-height:420px; white-space:pre; font-family:'Courier New', monospace; border:1px solid #ccc; border-radius:6px; padding:12px; background:#fafafa;"></textarea>
+    </div>
+  </div>
+  
+  
+
+
   <script>
     function switchTab(index) {
       document.querySelectorAll('.tab-content').forEach((tab, i) => {
@@ -102,7 +147,7 @@
       });
     }
 
-    // ---- Termo de Anuência (continua baixando DOCX do backend) ----
+    // ---------- Termo de Anuência (download DOCX do backend) ----------
     document.getElementById('termoForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const form = e.target;
@@ -131,7 +176,7 @@
       URL.revokeObjectURL(url);
     });
 
-    // ---- Termo Aditivo de Rescisão (gera texto no front) ----
+    // ---------- Termo Aditivo de Rescisão (texto na página) ----------
     document.getElementById('aditivoForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const form = e.target;
@@ -144,31 +189,30 @@
       const dataAssinaturaContrato = form.dataAssinaturaContrato.value; // YYYY-MM-DD
       const objetoOriginal = form.objetoOriginal.value;
 
-      // Data para exibir no padrão DD/MM/AAAA
+      // Data DD/MM/AAAA
       const dataBR = dataAssinaturaContrato
         ? new Date(dataAssinaturaContrato + "T00:00:00").toLocaleDateString('pt-BR')
         : "[DATA]";
 
-      // Monta exatamente o texto que você especificou
-      const texto = 
-`TERMO ADITIVO AO CONTRATO Nº
-${numeroContrato} DE ${tipoContrato},
-VISANDO A RESCISÃO
-ADMINISTRATIVA UNILATERAL.
-Pelo presente instrumento, a ÁGUAS E ESGOTOS DO PIAUÍ S.A. – AGESPISA, sociedade de
-economia mista estadual, inscrita no CNPJ sob o nº 06.845.747/0001-27, com sede na Av. Mal.
-Castelo Branco, Nº 101/N, Bairro Cabral, na cidade de Teresina-PI, neste ato representada por
-seu Diretor-Presidente, GARCIAS GUEDES RODRIGUES JÚNIOR, doravante denominada
-simplesmente CONTRATANTE; frente a empresa ${razaoSocialContratada} ,
-inscrita no CNPJ sob o nº ${cnpjContratada}, com sede na ${enderecoContratada}, doravante denominada
-CONTRATADA, unilateralmente resolve celebrar o presente Termo Aditivo de Rescisão
-Unilateral, com fundamento no artigo 137, inciso VIII, da Lei nº 14.133, de 1º de abril de 2021,
-mediante as cláusulas e condições a seguir pactuadas:
-CLÁUSULA PRIMEIRA – DO OBJETO
-1.1 O presente Termo Aditivo tem por objeto a rescisão unilateral do Contrato nº ${numeroContrato},
-celebrado em ${dataBR}, cujo objeto consiste em ${objetoOriginal}, em razão da superveniência de razões de interesse público, consistentes na
-extinção da função operacional da AGESPISA e na preparação para sua liquidação societária,
-conforme autorizado pela Lei Complementar nº 319, de 16 de julho de 2025 .`;
+      const texto =
+  `TERMO ADITIVO AO CONTRATO Nº
+  ${numeroContrato} DE ${tipoContrato},
+  VISANDO A RESCISÃO
+  ADMINISTRATIVA UNILATERAL.
+  Pelo presente instrumento, a ÁGUAS E ESGOTOS DO PIAUÍ S.A. – AGESPISA, sociedade de
+  economia mista estadual, inscrita no CNPJ sob o nº 06.845.747/0001-27, com sede na Av. Mal.
+  Castelo Branco, Nº 101/N, Bairro Cabral, na cidade de Teresina-PI, neste ato representada por
+  seu Diretor-Presidente, GARCIAS GUEDES RODRIGUES JÚNIOR, doravante denominada
+  simplesmente CONTRATANTE; frente a empresa ${razaoSocialContratada} ,
+  inscrita no CNPJ sob o nº ${cnpjContratada}, com sede na ${enderecoContratada}, doravante denominada
+  CONTRATADA, unilateralmente resolve celebrar o presente Termo Aditivo de Rescisão
+  Unilateral, com fundamento no artigo 137, inciso VIII, da Lei nº 14.133, de 1º de abril de 2021,
+  mediante as cláusulas e condições a seguir pactuadas:
+  CLÁUSULA PRIMEIRA – DO OBJETO
+  1.1 O presente Termo Aditivo tem por objeto a rescisão unilateral do Contrato nº ${numeroContrato},
+  celebrado em ${dataBR}, cujo objeto consiste em ${objetoOriginal}, em razão da superveniência de razões de interesse público, consistentes na
+  extinção da função operacional da AGESPISA e na preparação para sua liquidação societária,
+  conforme autorizado pela Lei Complementar nº 319, de 16 de julho de 2025 .`;
 
       const box = document.getElementById('aditivoOutputBox');
       const out = document.getElementById('aditivoOutput');
@@ -177,18 +221,42 @@ conforme autorizado pela Lei Complementar nº 319, de 16 de julho de 2025 .`;
       out.scrollIntoView({ behavior: 'smooth' });
     });
 
-    // Toast popup
-    function showToast(msg = "Texto copiado!") {
+    // ---------- Toast popup (compartilhado) ----------
+    function ensureToastExists() {
       let t = document.getElementById('toast');
       if (!t) {
         t = document.createElement('div');
         t.id = 'toast';
         t.className = 'toast';
+        // fallback de estilo caso não esteja no CSS
+        t.style.position = 'fixed';
+        t.style.right = '24px';
+        t.style.top = '24px';
+        t.style.background = '#2c7be5';
+        t.style.color = '#fff';
+        t.style.padding = '10px 14px';
+        t.style.borderRadius = '8px';
+        t.style.fontWeight = '700';
+        t.style.boxShadow = '0 8px 24px rgba(0,0,0,.15)';
+        t.style.opacity = '0';
+        t.style.transform = 'translateY(-8px)';
+        t.style.pointerEvents = 'none';
+        t.style.transition = 'all .25s ease';
         document.body.appendChild(t);
       }
+      return t;
+    }
+
+    function showToast(msg = "Texto copiado!") {
+      const t = ensureToastExists();
       t.textContent = msg;
-      t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 1800);
+      t.style.opacity = '1';
+      t.style.transform = 'translateY(0)';
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => {
+        t.style.opacity = '0';
+        t.style.transform = 'translateY(-8px)';
+      }, 1800);
     }
 
     function copiarAditivo() {
@@ -198,7 +266,68 @@ conforme autorizado pela Lei Complementar nº 319, de 16 de julho de 2025 .`;
       const ok = document.execCommand('copy');
       showToast(ok ? "Texto copiado!" : "Falha ao copiar");
     }
-  </script>
-  <div id="toast" class="toast" aria-live="polite"></div>
+
+    // ---------- Helpers ----------
+    function toPtBR(d) {
+      if (!d) return "";
+      const dt = new Date(d + "T00:00:00");
+      return isNaN(dt) ? d : dt.toLocaleDateString('pt-BR');
+    }
+
+    // ---------- Portaria PAI (texto na página) ----------
+    document.getElementById('portariaPAIForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const f = e.target;
+
+      const numeroRes   = f.numeroRes.value;
+      const dataResBR   = toPtBR(f.dataRes.value);
+      const cargoFunc   = f.cargoFunc.value;
+      const nomeFunc    = f.nomeFunc.value;
+      const matricula   = f.matriculaFunc.value;
+      const numSei      = f.numSei.value;
+      const lotacao     = f.lotacao.value;
+      const dataVigorBR = toPtBR(f.dataVigorRes.value);
+
+      // Cabeçalho simples (pode ajustar espaços para centralizar no SEI, se quiser)
+      const header = `PORTARIA`;
+
+      const texto =
+  `${header}
+
+  A ÁGUAS E ESGOTOS DO PIAUÍ S/A – AGESPISA, por meio de seu Diretor-Presidente, no uso das atribuições que lhe confere o Estatuto Social e Jurídico da Empresa,
+
+  CONSIDERANDO o disposto na Resolução SEI nº ${numeroRes}, de ${dataResBR}, que institui o novo Programa de Afastamento Incentivado (PAI) para empregados aposentados ou não, integrantes do quadro de provimento efetivo da AGESPISA;
+
+  CONSIDERANDO que o empregado desta empresa, ${cargoFunc}, ${nomeFunc} - MAT. ${matricula}, através do Termo de Adesão ao PAI/2025, aderiu ao novo Programa de Afastamento Incentivado – PAI, Processo SEI nº ${numSei};
+
+  CONSIDERANDO que o empregado preenche todos os requisitos elencados na citada Resolução, estando apto para adesão ao novo Programa de Afastamento Incentivado – PAI;
+
+  RESOLVE:
+
+  1º) Rescindir, a pedido, o contrato de trabalho do empregado desta Empresa, ${cargoFunc}, ${nomeFunc} - MAT. ${matricula}, lotado no ELO ${lotacao}, nos termos do novo Programa de Afastamento Incentivado – PAI, com percepção de todos os direitos e vantagens indenizatórias, de caráter trabalhista, previstos na Resolução nº ${numeroRes}, de ${dataResBR}.
+
+  2º) Determinar que a Diretoria Administrativa e de Gestão Corporativa - DIAGC, através da Superintendência de Gestão de Pessoas - SUGEP, adote as providências necessárias ao cumprimento da presente Portaria.
+
+  3º) Revogadas as disposições em contrário, os efeitos da presente Portaria entram em vigor na data de ${dataVigorBR}.
+
+  GARCIAS GUEDES RODRIGUES JÚNIOR
+  Diretor-Presidente – AGESPISA`;
+
+      const box = document.getElementById('portariaOutputBox');
+      const out = document.getElementById('portariaOutput');
+      out.value = texto;
+      box.style.display = 'block';
+      out.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    function copiarPortaria() {
+      const out = document.getElementById('portariaOutput');
+      out.select();
+      out.setSelectionRange(0, out.value.length);
+      const ok = document.execCommand('copy');
+      showToast(ok ? "Texto copiado!" : "Falha ao copiar");
+    }
+</script>
+<div id="toast" class="toast" aria-live="polite"></div>
 </body>
 </html>
